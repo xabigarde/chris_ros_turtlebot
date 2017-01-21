@@ -1,0 +1,27 @@
+<package format="2">
+  <name>chris_turtlebot_dashboard</name>
+  <version>0.0.1</version>
+  <description>
+    The Kobuki dashboard is a RQT-based plug-in for visualising data from Kobuki and giving easy access
+    to basic functionalities.
+  </description>
+  <maintainer email="david.conner@cnu.edu">David Conner</maintainer>
+  <license>BSD</license>
+  <url type="website">http://ros.org/wiki/kobuki_dashboard</url>
+  <url type="repository">https://github.com/CNURobotics/chris_ros_turtlebot</url>
+  <url type="bugtracker">https://github.com/CNURobotics/chris_ros_turtlebot/issues</url>
+
+  <author>David Conner</author>
+  <author>Ze'ev Klapow</author>
+  <author>Marcus Liebhardt</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>rqt_robot_dashboard</depend>
+  <depend>kobuki_msgs</depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugins/plugin.xml"/>
+  </export>
+</package>

@@ -1,0 +1,51 @@
+<launch>
+  <arg name="robot_namespace"   default="robot_namespace"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="base_prefix"       default="mobile_base" />
+  <arg name="serialport"        default="/dev/kobuki"                  doc="used by Turtlebot to configure the port it is connected on [/dev/kobuki]"/>
+  <arg name="battery"           default="/sys/class/power_supply/BAT0" doc="kernel provided location for battery info, use /proc/acpi/battery/BAT0 in 2.6 or earlier kernels." />
+
+  <!-- Load the CNU Turtlebot model with Kinect and Hokuyo URG-04LX lidar sensors -->
+  <group ns="$(arg robot_namespace)">
+    <param name="tf_prefix"       value="$(arg robot_namespace)_tf"/>
+    <arg  name="urdf_cmd" value= "$(find xacro)/xacro -v --inorder
+                                                    '$(find chris_turtlebot_model)/robots/chris_turtlebot.urdf.xacro'  nsp:=$(arg robot_namespace)"/>
+                                            "
+    <param name="robot_description" command="$(arg urdf_cmd)" />
+
+    <!-- Instantiate a nodelet manager to handle low level robot interfaces -->
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager">
+      <remap from="/diagnostics"                 to="diagnostics"/>
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="$(arg base_prefix)" args="load kobuki_node/KobukiNodelet nodelet_manager">
+      <rosparam file="$(find chris_turtlebot_bringup)/param/base.yaml" command="load"/>
+      <remap from="/diagnostics"   to="diagnostics"/>
+      <param name="device_port" value="$(arg serialport)" />
+      <param name="base_frame"  value="$(arg robot_namespace)_tf/base_footprint"/>
+      <param name="odom_frame"  value="$(arg robot_namespace)_tf/odom"/>
+      <param name="publish_tf"  value="true"/>
+    </node>
+    <!-- Basic odometry estimator for robot odometry and tf is published by the node -->
+
+    <!-- Publish the joint states as tf transforms based on the urdf configuration -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+      <param name="publish_frequency" type="double" value="5.0" />
+      <remap from="joint_states"      to="$(arg base_prefix)/joint_states"/>
+    </node>
+
+    <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
+      <rosparam command="load" file="$(find chris_turtlebot_bringup)/param/diagnostics.yaml" />
+      <remap from="/diagnostics"                 to="diagnostics"/>
+      <remap from="/diagnostics_agg"             to="diagnostics_agg"/>
+      <remap from="/diagnostics_toplevel_state"  to="diagnostics_toplevel_state"/>
+    </node>
+
+    <!-- This will only work on certain laptops -->
+    <!--   respawn because the node shuts down when you plug in charger -->
+    <node unless="$(eval arg('battery') == 'None')" pkg="laptop_battery_monitor" type="laptop_battery.py" name="laptop_battery" respawn="true">
+        <param name="acpi_path" type="string" value="$(arg battery)" />
+        <remap from="/diagnostics" to="diagnostics"/>
+    </node>
+  </group>
+
+</launch>

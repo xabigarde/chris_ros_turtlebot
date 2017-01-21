@@ -1,0 +1,27 @@
+<launch>
+  <arg name="robot_base_name"                  default="tbot"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="base_prefix"                      default="mobile_base" />
+  <arg name="include_fake_localization_robot0" default="true"/> <!-- assume we use simple fake localization in mutlirobot scenario for now -->
+  <arg name="include_fake_localization_robot1" default="true"/>
+  <arg name="initial_pose_robot0"              default="-x -0.75 -y  0.5 - z 0.0 -Y -1.5708"/>
+  <arg name="initial_pose_robot1"              default="-x  0.75 -y -0.5 - z 0.0 -Y  1.5708"/>
+
+  <arg name="robot0" default="$(arg robot_base_name)0"/>
+  <arg name="robot1" default="$(arg robot_base_name)1"/>
+
+  <!-- Load the CNU Turtlebot models with Kinect and Hokuyo sensors -->
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_turtlebot_gazebo.launch">
+      <arg name="robot_namespace"           value="$(arg robot0)" />
+      <arg name="base_prefix"               value="$(arg base_prefix)" />
+      <arg name="initial_pose"              value="$(arg initial_pose_robot0)" />
+      <arg name="include_fake_localization" value="$(arg include_fake_localization_robot0)"/>
+  </include>
+
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_turtlebot_gazebo.launch">
+    <arg name="robot_namespace"           value="$(arg robot1)" />
+    <arg name="base_prefix"               value="$(arg base_prefix)" />
+    <arg name="initial_pose"              value="$(arg initial_pose_robot1)" />
+    <arg name="include_fake_localization" value="$(arg include_fake_localization_robot1)"/>
+  </include>
+
+</launch>

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>chris_turtlebot_bringup</name>
+  <version>0.0.1</version>
+  <description>Launch scripts for gazebo and actual hardware</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="david.conner@cnu.edu">David Conner</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>BSD</license>
+
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+ <url type="website">https://github.com/CNURobotics/chris_turtlebot_bringup</url>
+
+
+  <!-- Author tags are optional, mutiple are allowed, one per tag -->
+  <!-- Authors do not have to be maintianers, but could be -->
+  <author email="david.conner@cnu.edu">David Conner</author>
+
+
+  <!-- The *_depend tags are used to specify dependencies -->
+  <!-- Dependencies can be catkin packages or system dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>fake_localization</depend>
+  <depend>simple_message_to_tf</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>tf2_ros</depend>
+  <depend>chris_turtlebot_model</depend>
+  <depend>stamped_cmd_vel_mux</depend>
+  <depend>stamped_velocity_smoother</depend>
+  <depend>laptop_battery_monitor</depend>
+  <depend>urg_node</depend>
+  <depend>laser_filters</depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+  </export>
+</package>

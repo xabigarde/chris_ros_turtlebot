@@ -1,0 +1,65 @@
+<launch>
+  <arg name="robot_namespace"           default="turtlebot"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="base_prefix"               default="mobile_base"/>
+  <arg name="initial_pose"              default="-x 0.0 -y 0.0 - z 0.0 -Y 0.0"/>
+  <arg name="include_fake_localization" default="false"/>
+
+
+  <!-- Load the CNU Turtlebot model with Kinect and Hokuyo sensors -->
+  <!-- We expect to call this launch file within a particular namespace for multiple robots -->
+  <group ns="$(arg robot_namespace)">
+    <!-- Define a tf_prefix to set the tf frames in this robot description.  Yes it is deprecated, but the best we can do for now -->
+    <param name="tf_prefix"       value="$(arg robot_namespace)_tf"/>
+
+    <arg  name="urdf_cmd" value= "$(find xacro)/xacro -v --inorder
+                                                    '$(find chris_turtlebot_model)/robots/chris_turtlebot.urdf.xacro'  nsp:=$(arg robot_namespace)"/>
+                                            "
+    <param name="robot_description" command="$(arg urdf_cmd)" />
+
+    <!-- start up the gazebo setup with given robot description -->
+    <node name="spawn_turtlebot_model" pkg="gazebo_ros" type="spawn_model"
+          args="-unpause -urdf -param robot_description -model $(arg robot_namespace) $(arg initial_pose)">
+          <remap from="joint_states"      to="$(arg base_prefix)/joint_states"/>
+    </node>
+
+    <!-- Basic odometry estimator for robot odometry published by the node -->
+    <!--node pkg="simple_message_to_tf" type="message_to_tf" name="robot_odometry">
+      <param name="odometry_topic" value="$(arg base_prefix)/odom"/>
+    </node-->
+
+    <!-- publish joint states within this name space -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+      <param name="publish_frequency" type="double" value="5.0" />
+      <remap from="joint_states"      to="$(arg base_prefix)/joint_states"/>
+    </node>
+    <!-- Instantiate a nodelet manager to handle low level robot interfaces -->
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+  </group>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter" ns="$(arg robot_namespace)">
+        <remap from="scan"          to="hokuyo_node/scan_raw" />
+        <remap from="scan_filtered" to="hokuyo_node/scan" />
+        <rosparam command="load" file="$(find chris_turtlebot_bringup)/param/laser_filters.yaml" />
+  </node>
+
+
+  <group if="$(arg include_fake_localization)">
+    <!-- Optional fake localization that uses simulation ground truth and provides world to map transform -->
+    <include file="$(find chris_turtlebot_bringup)/launch/chris_fake_localization.launch">
+      <arg name="robot_namespace"    value="$(arg robot_namespace)" />
+      <arg name="ground_truth_odom"  value="$(arg base_prefix)/ground_truth"/>
+    </include>
+
+    <!--  Transform map frame back to a common world frame -->
+    <node pkg="tf2_ros" ns="$(arg robot_namespace)" type="static_transform_publisher" name="dummy_localization" args="0.0 0.0 0. 0. 0. 0. 1. /world $(arg robot_namespace)_tf/map" />
+
+  </group>
+
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_cmd_vel_mux.launch" >
+    <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
+    <arg name="base_prefix"           value="$(arg base_prefix)"/>
+  </include>
+
+
+
+</launch>

@@ -1,0 +1,22 @@
+<launch>
+    <arg name="robot_namespace"   default="turtlebot"/>
+    <arg name="base_prefix"       default="mobile_base" />
+    <!-- default robot frames use our defined tf prefix based on robot namespace -->
+    <arg name="global_frame_id"   default="$(arg robot_namespace)_tf/map"/>
+    <arg name="odom_frame_id"     default="$(arg robot_namespace)_tf/odom"/>
+    <arg name="base_frame_id"     default="$(arg robot_namespace)_tf/base_footprint"/>
+    <arg name="ground_truth_odom" default="$(arg base_prefix)/odom"/>
+
+    <group ns="$(arg robot_namespace)">
+        <node pkg="fake_localization" type="fake_localization" name="amcl">
+          <param name="global_frame_id"    value="$(arg global_frame_id)" />
+          <param name="odom_frame_id"      value="$(arg odom_frame_id)" />
+          <param name="base_frame_id"      value="$(arg base_frame_id)" />
+          <!-- odometry topic that reports ground truth base_frame_id in some frame
+              we need to make sure we have transform (e.g. static transform) from this our designated "global" frame -->
+          <remap from="base_pose_ground_truth" to="$(arg ground_truth_odom)" />
+        </node>
+    </group>
+
+
+</launch>

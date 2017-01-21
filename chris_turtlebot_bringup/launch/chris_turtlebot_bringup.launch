@@ -1,0 +1,33 @@
+<launch>
+  <arg name="robot_namespace"  default="turtlebot"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="base_prefix"      default="mobile_base" />
+
+  <!-- Turtlebot with Kinect launch file -->
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_turtlebot_node.launch" >
+    <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
+  </include>
+
+  <!-- LIDAR interface -->
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_hokuyo_bringup.launch" >
+    <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
+  </include>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter" ns="$(arg robot_namespace)">
+        <remap from="scan"          to="hokuyo_node/scan_raw" />
+        <remap from="scan_filtered" to="hokuyo_node/scan" />
+        <rosparam command="load" file="$(find chris_turtlebot_bringup)/param/laser_filters.yaml" />
+  </node>
+
+  <!-- Kinect interface -->
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_kinect_bringup.launch" >
+    <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
+  </include>
+
+  <!-- command velocity input mux -->
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_cmd_vel_mux.launch" >
+    <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
+    <arg name="base_prefix"           value="$(arg base_prefix)"/>
+  </include>
+
+
+</launch>

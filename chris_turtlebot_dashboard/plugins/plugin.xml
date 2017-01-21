@@ -1,0 +1,22 @@
+<library path="src">
+  <class name="CHRISTurtlebotDashboard" type="chris_turtlebot_dashboard.dashboard.KobukiDashboard" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Dashboard for CHRISLab Kobuki-based turtlebot
+    </description>
+    <qtgui>
+      <group>
+        <label>Robot</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to specific robots.</statustip>
+      </group>
+      <group>
+        <label>CHRISLab Turtlebot</label>
+        <icon type="file">images/kobuki_icon.png</icon>
+        <statustip>Plugins related to the CHRISLab Kobuki-based Turtlebot robot.</statustip>
+      </group>
+      <label>Kobuki Dashboard</label>
+      <icon type="file">images/kobuki_icon.png</icon>
+      <statustip>Check what's going on with Kobuki-based Turtlebot </statustip>
+    </qtgui>
+  </class>
+</library>

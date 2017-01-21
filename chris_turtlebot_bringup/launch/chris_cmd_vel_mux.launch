@@ -1,0 +1,14 @@
+<launch>
+  <arg name="robot_namespace"   default="turtlebot"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="base_prefix"       default="mobile_base"/>
+  <arg name="nodelet_command"   default="standalone"/> <!-- standalone vs. load -->
+  <arg name="nodelet_manager"   default=""/> <!-- empty "" for standalone vs. e.g. "$(arg base_prefix)_nodelet_manager" -->
+
+  <!-- Velocity muxer -->
+  <node pkg="nodelet" type="nodelet" name="stamped_cmd_vel_mux"  ns="$(arg robot_namespace)"
+         args="$(arg nodelet_command) stamped_cmd_vel_mux/StampedCmdVelMuxNodelet $(arg nodelet_manager)">
+     <param name="yaml_cfg_file" value="$(find chris_turtlebot_bringup)/param/mux.yaml" />
+     <remap from="stamped_cmd_vel_mux/output/cmd_vel" to="$(arg base_prefix)/commands/velocity"/>
+  </node>
+
+</launch>
