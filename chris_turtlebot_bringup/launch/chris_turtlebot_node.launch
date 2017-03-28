@@ -1,8 +1,8 @@
 <launch>
   <arg name="robot_namespace"   default="robot_namespace"/> <!-- robot's name used by plugin to publish topics -->
   <arg name="base_prefix"       default="mobile_base" />
-  <arg name="serialport"        default="/dev/kobuki"                  doc="used by Turtlebot to configure the port it is connected on [/dev/kobuki]"/>
-  <arg name="battery"           default="/sys/class/power_supply/BAT0" doc="kernel provided location for battery info, use /proc/acpi/battery/BAT0 in 2.6 or earlier kernels." />
+  <arg name="serialport"        default="/dev/kobuki"         doc="used by Turtlebot to configure the port it is connected on [/dev/kobuki]"/>
+  <arg name="battery"           default="None"                doc="kernel provided location for battery info, e.g. /sys/class/power_supply/BAT0 for laptops.  Our turtlebots use Nuc computers without battery info." />
 
   <!-- Load the CNU Turtlebot model with Kinect and Hokuyo URG-04LX lidar sensors -->
   <group ns="$(arg robot_namespace)">

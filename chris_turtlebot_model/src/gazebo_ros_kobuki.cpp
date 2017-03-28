@@ -100,6 +100,12 @@ void GazeboRosKobuki::OnUpdate() {
   propagateVelocityCommands();
   updateCliffSensor();
   updateBumper();
+
+  // Publish the core sensor message after updating bumpers and cliff
+  sensor_core_msg_.header.stamp = ros::Time::now();
+  sensor_core_msg_.time_stamp += (uint16_t)(step_time.Double()*1000.0);
+  sensor_core_pub_.publish(sensor_core_msg_);
+
 }
 
 void GazeboRosKobuki::spin() {

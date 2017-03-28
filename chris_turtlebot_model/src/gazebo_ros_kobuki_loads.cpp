@@ -28,7 +28,7 @@
  */
 
 /**
- * @author Marcus Liebhardt
+ * @author Marcus Liebhardt, David Conner
  *
  * This work has been inspired by Nate Koenig's Gazebo plugin for the iRobot
  * Create.
@@ -352,5 +352,16 @@ void GazeboRosKobuki::setupRosApi(std::string &model_name) {
   std::string imu_topic = base_prefix + "/sensors/imu_data";
   imu_pub_ = gazebo_ros_->node()->advertise<sensor_msgs::Imu>(imu_topic, 1);
   ROS_INFO("%s: Advertise IMU[%s]!", gazebo_ros_->info(), imu_topic.c_str());
+  
+  // Sensor Core message
+  std::string sensor_core_topic = base_prefix + "/sensors/core";
+  sensor_core_pub_ = gazebo_ros_->node()->advertise<kobuki_msgs::SensorState>(sensor_core_topic, 1);
+  ROS_INFO("%s: Advertise SensorState[%s]!", gazebo_ros_->info(), sensor_core_topic.c_str());
+
+  // Set up some default data to report
+  sensor_core_msg_.battery = 161; // Use constant 16.1 volts in simulation
+  sensor_core_msg_.current = {24, 24};  // Use constant for now, maybe relate to commanded velocity+acceleration
+  sensor_core_msg_.bottom  = {0,0,0};   // ADC output of the right, centre, left cliff PSD sensor (0 - 4095, distance measure is non-linear)
+
 }
 }

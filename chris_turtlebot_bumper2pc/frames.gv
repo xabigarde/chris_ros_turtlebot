@@ -1,0 +1,13 @@
+digraph G {
+"turtlebot_tf/odom" -> "turtlebot_tf/base_footprint"[label="Broadcaster: /gazebo\nAverage rate: 1000.203 Hz\nMost recent transform: 23.126 ( 0.001 sec old)\nBuffer length: 4.930 sec\n"];
+"turtlebot_tf/base_link" -> "turtlebot_tf/wheel_left_link"[label="Broadcaster: /turtlebot/robot_state_publisher\nAverage rate: 5.208 Hz\nMost recent transform: 23.072 ( 0.055 sec old)\nBuffer length: 4.800 sec\n"];
+"turtlebot_tf/base_link" -> "turtlebot_tf/wheel_right_link"[label="Broadcaster: /turtlebot/robot_state_publisher\nAverage rate: 5.208 Hz\nMost recent transform: 23.072 ( 0.055 sec old)\nBuffer length: 4.800 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 23.127"[ shape=plaintext ] ;
+ }->"turtlebot_tf/odom";
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 23.127"[ shape=plaintext ] ;
+ }->"turtlebot_tf/base_link";
+}

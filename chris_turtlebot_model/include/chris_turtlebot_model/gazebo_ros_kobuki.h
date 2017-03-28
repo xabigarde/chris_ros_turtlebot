@@ -56,6 +56,7 @@
 #include <kobuki_msgs/BumperEvent.h>
 #include <kobuki_msgs/CliffEvent.h>
 #include <kobuki_msgs/MotorPower.h>
+#include <kobuki_msgs/SensorState.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
@@ -231,6 +232,12 @@ private:
   bool bumper_center_is_pressed_;
   /// Flag for left bumper's current state
   bool bumper_right_is_pressed_;
+
+  /// Latch the bumper to give persistent contact in simulation
+  ros::Time bumper_left_pressed_time_;
+  ros::Time bumper_center_pressed_time_;
+  ros::Time bumper_right_pressed_time_;
+
   /// Pointer to IMU sensor model
   sensors::ImuSensorPtr imu_;
   /// Storage for the angular velocity reported by the IMU
@@ -241,6 +248,11 @@ private:
   sensor_msgs::Imu imu_msg_;
   /// ROS subscriber for reseting the odometry data
   ros::Subscriber odom_reset_sub_;
+  /// ROS publisher for core sensor messages
+  ros::Publisher sensor_core_pub_;
+
+  kobuki_msgs::SensorState sensor_core_msg_;
+
 };
 
 } // namespace gazebo

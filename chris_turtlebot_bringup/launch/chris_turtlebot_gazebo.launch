@@ -33,7 +33,18 @@
       <remap from="joint_states"      to="$(arg base_prefix)/joint_states"/>
     </node>
     <!-- Instantiate a nodelet manager to handle low level robot interfaces -->
-    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="bumper2pointcloud" args="load chris_turtlebot_bumper2pc/Bumper2PcNodelet nodelet_manager" output="screen">
+      <param name="pointcloud_radius"     value="0.20"/>
+      <param name="pointcloud_thickness"  value="0.05"/>
+      <param name="pointcloud_max_radius" value="1000.0"/>
+      <param name="points_per_bumper"     value="4"/>
+      <param name="base_link_frame"       value="$(arg robot_namespace)_tf/base_link"/>
+      <remap from="bumper2pointcloud/pointcloud"   to="$(arg base_prefix)/sensors/bumper_pointcloud"/>
+      <remap from="bumper2pointcloud/core_sensors" to="$(arg base_prefix)/sensors/core"/>
+    </node>
+
   </group>
 
   <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter" ns="$(arg robot_namespace)">

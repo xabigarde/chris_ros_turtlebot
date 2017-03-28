@@ -1,8 +1,8 @@
 <launch>
   <arg name="robot_base_name"                  default="tbot"/> <!-- robot's name used by plugin to publish topics -->
   <arg name="base_prefix"                      default="mobile_base" />
-  <arg name="include_fake_localization_robot0" default="true"/> <!-- assume we use simple fake localization in mutlirobot scenario for now -->
-  <arg name="include_fake_localization_robot1" default="true"/>
+  <arg name="include_fake_localization_robot0" default="false"/> <!-- Most of our navigation demos need map server, so use version from chris_turtlebot_navigation -->
+  <arg name="include_fake_localization_robot1" default="false"/>
   <arg name="initial_pose_robot0"              default="-x -0.75 -y  0.5 - z 0.0 -Y -1.5708"/>
   <arg name="initial_pose_robot1"              default="-x  0.75 -y -0.5 - z 0.0 -Y  1.5708"/>
 

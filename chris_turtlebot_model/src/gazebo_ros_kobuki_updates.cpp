@@ -28,7 +28,7 @@
  */
 
 /**
- * @author Marcus Liebhardt
+ * @author Marcus Liebhardt, David Conner
  *
  * This work has been inspired by Nate Koenig's Gazebo plugin for the iRobot
  * Create.
@@ -172,6 +172,7 @@ void GazeboRosKobuki::updateOdometry(common::Time &step_time) {
   base_ground_truth.pose.pose.orientation.z = world.rot.z;
   base_ground_truth.pose.pose.orientation.w = world.rot.w;
   ground_truth_pub_.publish(base_ground_truth);
+
 }
 
 /*
@@ -220,12 +221,14 @@ void GazeboRosKobuki::propagateVelocityCommands() {
  * Check each sensor separately
  */
 void GazeboRosKobuki::updateCliffSensor() {
+
   // Left cliff sensor
   if ((cliff_detected_left_ == false) &&
       (cliff_sensor_left_->Range(0) >= cliff_detection_threshold_)) {
     cliff_detected_left_ = true;
     cliff_event_.sensor = kobuki_msgs::CliffEvent::LEFT;
     cliff_event_.state = kobuki_msgs::CliffEvent::CLIFF;
+
     // convert distance back to an AD reading
     cliff_event_.bottom =
         (int)(76123.0f * atan2(0.995f, cliff_sensor_left_->Range(0)));
@@ -280,6 +283,18 @@ void GazeboRosKobuki::updateCliffSensor() {
         (int)(76123.0f * atan2(0.995f, cliff_sensor_right_->Range(0)));
     cliff_event_pub_.publish(cliff_event_);
   }
+
+  // Update the cliff data for core sensor messages
+  sensor_core_msg_.cliff = 0;
+  if (cliff_detected_left_)
+     sensor_core_msg_.cliff += kobuki_msgs::SensorState::CLIFF_LEFT;
+
+  if (cliff_detected_center_)
+     sensor_core_msg_.cliff += kobuki_msgs::SensorState::CLIFF_CENTRE;
+
+  if (cliff_detected_right_)
+     sensor_core_msg_.cliff += kobuki_msgs::SensorState::CLIFF_RIGHT;
+
 }
 
 /*
@@ -302,6 +317,7 @@ void GazeboRosKobuki::updateBumper() {
   contacts = bumper_->Contacts();
   math::Pose current_pose = model_->GetWorldPose();
   double robot_heading = current_pose.rot.GetYaw();
+  ros::Time current_time = ros::Time::now();
 
   for (int i = 0; i < contacts.contact_size(); ++i) {
     double rel_contact_pos =
@@ -313,11 +329,10 @@ void GazeboRosKobuki::updateBumper() {
     if ((rel_contact_pos >= 0.01) && (rel_contact_pos <= 0.13)) {
       // using the force normals below, since the contact position is given in
       // world coordinates
-      // also negating the normal, because it points from contact to robot
-      // centre
+      // Normal points from robot center to external contact point
       double global_contact_angle =
-          std::atan2(-contacts.contact(i).normal(0).y(),
-                     -contacts.contact(i).normal(0).x());
+          std::atan2(contacts.contact(i).normal(0).y(),
+                     contacts.contact(i).normal(0).x());
       double relative_contact_angle = global_contact_angle - robot_heading;
 
       if ((relative_contact_angle <= (M_PI / 2)) &&
@@ -334,38 +349,70 @@ void GazeboRosKobuki::updateBumper() {
   }
 
   // check for bumper state change
-  if (bumper_left_is_pressed_ && !bumper_left_was_pressed_) {
-    bumper_left_was_pressed_ = true;
-    bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::LEFT;
-    bumper_event_pub_.publish(bumper_event_);
+  // latch bumper for minimal time given simulation contacts that are more likely to bounce off
+  // Assume we are updating map at least twice per second and latch for 0.6 seconds
+  if (bumper_left_is_pressed_ ) {
+      if (!bumper_left_was_pressed_)
+      {
+          bumper_left_was_pressed_ = true;
+          bumper_left_pressed_time_ = current_time; // trigger contact
+          bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::LEFT;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   } else if (!bumper_left_is_pressed_ && bumper_left_was_pressed_) {
-    bumper_left_was_pressed_ = false;
-    bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::LEFT;
-    bumper_event_pub_.publish(bumper_event_);
+      if ((current_time - bumper_left_pressed_time_) > ros::Duration(0.6)){
+          // Only clear bumper if we are free for minimal time
+          bumper_left_was_pressed_ = false;
+          bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::LEFT;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   }
-  if (bumper_center_is_pressed_ && !bumper_center_was_pressed_) {
-    bumper_center_was_pressed_ = true;
-    bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::CENTER;
-    bumper_event_pub_.publish(bumper_event_);
+  if (bumper_center_is_pressed_ ) {
+      if (!bumper_center_was_pressed_ ) {
+          bumper_center_was_pressed_ = true;
+          bumper_center_pressed_time_ = current_time;
+          bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::CENTER;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   } else if (!bumper_center_is_pressed_ && bumper_center_was_pressed_) {
-    bumper_center_was_pressed_ = false;
-    bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::CENTER;
-    bumper_event_pub_.publish(bumper_event_);
+      if ((current_time - bumper_center_pressed_time_) > ros::Duration(0.6)){
+          bumper_center_was_pressed_ = false;
+          bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::CENTER;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   }
   if (bumper_right_is_pressed_ && !bumper_right_was_pressed_) {
-    bumper_right_was_pressed_ = true;
-    bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::RIGHT;
-    bumper_event_pub_.publish(bumper_event_);
+      if (!bumper_right_was_pressed_ ) {
+          bumper_right_was_pressed_ = true;
+          bumper_right_pressed_time_ = current_time;
+          bumper_event_.state = kobuki_msgs::BumperEvent::PRESSED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::RIGHT;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   } else if (!bumper_right_is_pressed_ && bumper_right_was_pressed_) {
-    bumper_right_was_pressed_ = false;
-    bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
-    bumper_event_.bumper = kobuki_msgs::BumperEvent::RIGHT;
-    bumper_event_pub_.publish(bumper_event_);
+      if ((current_time - bumper_center_pressed_time_) > ros::Duration(0.6)){
+          bumper_right_was_pressed_ = false;
+          bumper_event_.state = kobuki_msgs::BumperEvent::RELEASED;
+          bumper_event_.bumper = kobuki_msgs::BumperEvent::RIGHT;
+          bumper_event_pub_.publish(bumper_event_);
+      }
   }
+
+  // Update the bumper data for core sensor messages
+  sensor_core_msg_.bumper = 0;
+  if (bumper_left_was_pressed_)
+     sensor_core_msg_.bumper += kobuki_msgs::SensorState::BUMPER_LEFT;
+
+  if (bumper_center_was_pressed_)
+     sensor_core_msg_.bumper += kobuki_msgs::SensorState::BUMPER_CENTRE;
+
+  if (bumper_right_was_pressed_)
+     sensor_core_msg_.bumper += kobuki_msgs::SensorState::BUMPER_RIGHT;
+
+
 }
 }

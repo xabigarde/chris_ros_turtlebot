@@ -6,6 +6,7 @@
     <arg name="odom_frame_id"     default="$(arg robot_namespace)_tf/odom"/>
     <arg name="base_frame_id"     default="$(arg robot_namespace)_tf/base_footprint"/>
     <arg name="ground_truth_odom" default="$(arg base_prefix)/odom"/>
+    <arg name="pose_topic"        default="estimated_pose"/>
 
     <group ns="$(arg robot_namespace)">
         <node pkg="fake_localization" type="fake_localization" name="amcl">
@@ -15,6 +16,7 @@
           <!-- odometry topic that reports ground truth base_frame_id in some frame
               we need to make sure we have transform (e.g. static transform) from this our designated "global" frame -->
           <remap from="base_pose_ground_truth" to="$(arg ground_truth_odom)" />
+          <remap from="amcl_pose"              to="$(arg pose_topic)"/>
         </node>
     </group>
 
