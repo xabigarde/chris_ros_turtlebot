@@ -158,7 +158,11 @@ bool GazeboRosKobuki::prepareVelocityCommand() {
         << " [" << node_name_ << "]");
     return false;
   }
-  last_cmd_vel_time_ = world_->GetSimTime();
+  #if GAZEBO_MAJOR_VERSION >= 9
+    last_cmd_vel_time_ = world_->SimTime();
+  #else
+    last_cmd_vel_time_ = world_->GetSimTime();
+  #endif
   return true;
 }
 
@@ -275,8 +279,13 @@ bool GazeboRosKobuki::prepareIMU() {
         << " [" << node_name_ << "]");
     return false;
   }
-  imu_ = std::dynamic_pointer_cast<sensors::ImuSensor>(sensors::get_sensor(
-      world_->GetName() + "::" + node_name_ + "::base_footprint::" + imu_name));
+  #if GAZEBO_MAJOR_VERSION >= 9
+    imu_ = std::dynamic_pointer_cast<sensors::ImuSensor>(
+            sensors::get_sensor(world_->Name()+"::"+node_name_+"::base_footprint::"+imu_name));
+  #else
+    imu_ = std::dynamic_pointer_cast<sensors::ImuSensor>(
+            sensors::get_sensor(world_->GetName() + "::" + node_name_ + "::base_footprint::" + imu_name));
+  #endif
   if (!imu_) {
     ROS_ERROR_STREAM("Couldn't find the IMU in the model! [" << node_name_
                                                              << "]");
@@ -352,7 +361,7 @@ void GazeboRosKobuki::setupRosApi(std::string &model_name) {
   std::string imu_topic = base_prefix + "/sensors/imu_data";
   imu_pub_ = gazebo_ros_->node()->advertise<sensor_msgs::Imu>(imu_topic, 1);
   ROS_INFO("%s: Advertise IMU[%s]!", gazebo_ros_->info(), imu_topic.c_str());
-  
+
   // Sensor Core message
   std::string sensor_core_topic = base_prefix + "/sensors/core";
   sensor_core_pub_ = gazebo_ros_->node()->advertise<kobuki_msgs::SensorState>(sensor_core_topic, 1);

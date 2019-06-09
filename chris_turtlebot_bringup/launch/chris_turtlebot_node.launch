@@ -1,5 +1,5 @@
 <launch>
-  <arg name="robot_namespace"   default="robot_namespace"/> <!-- robot's name used by plugin to publish topics -->
+  <arg name="robot_namespace"   default="turtlebot"/> <!-- robot's name used by plugin to publish topics -->
   <arg name="base_prefix"       default="mobile_base" />
   <arg name="serialport"        default="/dev/kobuki"         doc="used by Turtlebot to configure the port it is connected on [/dev/kobuki]"/>
   <arg name="battery"           default="None"                doc="kernel provided location for battery info, e.g. /sys/class/power_supply/BAT0 for laptops.  Our turtlebots use Nuc computers without battery info." />
@@ -7,8 +7,7 @@
   <!-- Load the CNU Turtlebot model with Kinect and Hokuyo URG-04LX lidar sensors -->
   <group ns="$(arg robot_namespace)">
     <param name="tf_prefix"       value="$(arg robot_namespace)_tf"/>
-    <arg  name="urdf_cmd" value= "$(find xacro)/xacro -v --inorder
-                                                    '$(find chris_turtlebot_model)/robots/chris_turtlebot.urdf.xacro'  nsp:=$(arg robot_namespace)"/>
+    <arg  name="urdf_cmd" value= "$(find xacro)/xacro -v '$(find chris_turtlebot_model)/robots/chris_turtlebot.urdf.xacro'  nsp:=$(arg robot_namespace)"/>
                                             "
     <param name="robot_description" command="$(arg urdf_cmd)" />
 
@@ -17,7 +16,7 @@
       <remap from="/diagnostics"                 to="diagnostics"/>
     </node>
 
-    <node pkg="nodelet" type="nodelet" name="$(arg base_prefix)" args="load kobuki_node/KobukiNodelet nodelet_manager">
+    <node pkg="nodelet" type="nodelet" name="$(arg base_prefix)" args="load kobuki_node/KobukiNodelet nodelet_manager" output="screen">
       <rosparam file="$(find chris_turtlebot_bringup)/param/base.yaml" command="load"/>
       <remap from="/diagnostics"   to="diagnostics"/>
       <param name="device_port" value="$(arg serialport)" />

@@ -3,7 +3,14 @@
 #include <boost/bind.hpp>
 #include <cmath>
 #include <cstring>
-#include <gazebo/math/gzmath.hh>
+#if GAZEBO_MAJOR_VERSION >= 9
+  // #include <ignition/math.hh>
+  #include <ignition/math/Vector3.hh>
+  #include <ignition/math/Quaternion.hh>
+#else
+  #include <gazebo/math/gzmath.hh>
+#endif
+
 #include <sensor_msgs/JointState.h>
 #include <tf/LinearMath/Quaternion.h>
 
@@ -75,7 +82,11 @@ void GazeboRosKobuki::Load(physics::ModelPtr parent, sdf::ElementPtr sdf) {
 
   setupRosApi(model_name);
 
-  prev_update_time_ = world_->GetSimTime();
+  #if GAZEBO_MAJOR_VERSION >= 9
+     prev_update_time_ = world_->SimTime();
+  #else
+     prev_update_time_ = world_->GetSimTime();
+  #endif
   ROS_INFO_STREAM("GazeboRosKobuki plugin ready to go! [" << node_name_ << "]");
   update_connection_ = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&GazeboRosKobuki::OnUpdate, this));
@@ -90,7 +101,12 @@ void GazeboRosKobuki::OnUpdate() {
   /*
    * Update current time and time step
    */
-  common::Time time_now = world_->GetSimTime();
+  common::Time time_now;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    time_now = world_->SimTime();
+  #else
+    time_now = world_->GetSimTime();
+  #endif
   common::Time step_time = time_now - prev_update_time_;
   prev_update_time_ = time_now;
 
@@ -126,8 +142,13 @@ void GazeboRosKobuki::motorPowerCB(const kobuki_msgs::MotorPowerPtr &msg) {
   }
 }
 
-void GazeboRosKobuki::cmdVelCB(const geometry_msgs::TwistConstPtr &msg) {
-  last_cmd_vel_time_ = world_->GetSimTime();
+void GazeboRosKobuki::cmdVelCB(const geometry_msgs::TwistConstPtr &msg)
+{
+  #if GAZEBO_MAJOR_VERSION >= 9
+    last_cmd_vel_time_ = world_->SimTime();
+  #else
+    last_cmd_vel_time_ = world_->GetSimTime();
+  #endif
   wheel_speed_cmd_[LEFT] = msg->linear.x - msg->angular.z * (wheel_sep_) / 2;
   wheel_speed_cmd_[RIGHT] = msg->linear.x + msg->angular.z * (wheel_sep_) / 2;
 }

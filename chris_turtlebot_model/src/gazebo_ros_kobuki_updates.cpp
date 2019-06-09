@@ -45,9 +45,16 @@ void GazeboRosKobuki::updateJointState() {
   std::string baselink_frame = gazebo_ros_->resolveTF("base_link");
   joint_state_.header.stamp = ros::Time::now();
   joint_state_.header.frame_id = baselink_frame;
-  joint_state_.position[LEFT] = joints_[LEFT]->GetAngle(0).Radian();
+
+  #if GAZEBO_MAJOR_VERSION >= 9
+    joint_state_.position[LEFT] = joints_[LEFT]->Position(0);
+    joint_state_.position[RIGHT] = joints_[RIGHT]->Position(0);
+  #else
+    joint_state_.position[LEFT] = joints_[LEFT]->GetAngle(0).Radian();
+    joint_state_.position[RIGHT] = joints_[RIGHT]->GetAngle(0).Radian();
+  #endif
+
   joint_state_.velocity[LEFT] = joints_[LEFT]->GetVelocity(0);
-  joint_state_.position[RIGHT] = joints_[RIGHT]->GetAngle(0).Radian();
   joint_state_.velocity[RIGHT] = joints_[RIGHT]->GetVelocity(0);
   joint_state_pub_.publish(joint_state_);
 }
@@ -94,11 +101,20 @@ void GazeboRosKobuki::updateOdometry(common::Time &step_time) {
   // Compute odometric pose
   odom_pose_[0] += dr * cos(odom_pose_[2]);
   odom_pose_[1] += dr * sin(odom_pose_[2]);
-  odom_pose_[2] += vel_angular_.z * step_time.Double();
+  #if GAZEBO_MAJOR_VERSION >= 9
+    odom_pose_[2] += vel_angular_.Z() * step_time.Double();
+  #else
+    odom_pose_[2] += vel_angular_.z * step_time.Double();
+  #endif
+
   // Compute odometric instantaneous velocity
   odom_vel_[0] = dr / step_time.Double();
   odom_vel_[1] = 0.0;
-  odom_vel_[2] = vel_angular_.z;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    odom_vel_[2] = vel_angular_.Z();
+  #else
+    odom_vel_[2] = vel_angular_.z;
+  #endif
 
   odom_.pose.pose.position.x = odom_pose_[0];
   odom_.pose.pose.position.y = odom_pose_[1];
@@ -140,37 +156,36 @@ void GazeboRosKobuki::updateOdometry(common::Time &step_time) {
   nav_msgs::Odometry odom_ground_truth = odom_;
   odom_ground_truth.header.frame_id = "world";
   odom_ground_truth.child_frame_id = odom_frame;
-  math::Pose world = model_->GetWorldPose();
-  math::Pose odom2world =
-      world *
-      math::Pose(gazebo::math::Vector3(odom_pose_[0], odom_pose_[1], 0.0),
-                 gazebo::math::Quaternion(odom_.pose.pose.orientation.w,
+  ignition::math::Pose3d world = model_->WorldPose();
+  ignition::math::Pose3d odom2world =  world *
+      ignition::math::Pose3d(ignition::math::Vector3d(odom_pose_[0], odom_pose_[1], 0.0),
+                 ignition::math::Quaterniond(odom_.pose.pose.orientation.w,
                                           odom_.pose.pose.orientation.x,
                                           odom_.pose.pose.orientation.y,
                                           odom_.pose.pose.orientation.z))
-          .GetInverse();
-  odom_ground_truth.pose.pose.position.x = odom2world.pos.x;
-  odom_ground_truth.pose.pose.position.y = odom2world.pos.y;
-  odom_ground_truth.pose.pose.position.z = odom2world.pos.z;
+           .Inverse();
+  odom_ground_truth.pose.pose.position.x = odom2world.Pos().X();
+  odom_ground_truth.pose.pose.position.y = odom2world.Pos().Y();
+  odom_ground_truth.pose.pose.position.z = odom2world.Pos().Z();
 
-  odom_ground_truth.pose.pose.orientation.x = odom2world.rot.x;
-  odom_ground_truth.pose.pose.orientation.y = odom2world.rot.y;
-  odom_ground_truth.pose.pose.orientation.z = odom2world.rot.z;
-  odom_ground_truth.pose.pose.orientation.w = odom2world.rot.w;
+  odom_ground_truth.pose.pose.orientation.x = odom2world.Rot().X();
+  odom_ground_truth.pose.pose.orientation.y = odom2world.Rot().Y();
+  odom_ground_truth.pose.pose.orientation.z = odom2world.Rot().Z();
+  odom_ground_truth.pose.pose.orientation.w = odom2world.Rot().W();
   odom_ground_truth_pub_.publish(odom_ground_truth);
 
   nav_msgs::Odometry base_ground_truth = odom_;
   base_ground_truth.header.frame_id = "world";
   base_ground_truth.child_frame_id = base_frame;
 
-  base_ground_truth.pose.pose.position.x = world.pos.x;
-  base_ground_truth.pose.pose.position.y = world.pos.y;
-  base_ground_truth.pose.pose.position.z = world.pos.z;
+  base_ground_truth.pose.pose.position.x = world.Pos().X();
+  base_ground_truth.pose.pose.position.y = world.Pos().Y();
+  base_ground_truth.pose.pose.position.z = world.Pos().Z();
 
-  base_ground_truth.pose.pose.orientation.x = world.rot.x;
-  base_ground_truth.pose.pose.orientation.y = world.rot.y;
-  base_ground_truth.pose.pose.orientation.z = world.rot.z;
-  base_ground_truth.pose.pose.orientation.w = world.rot.w;
+  base_ground_truth.pose.pose.orientation.x = world.Rot().X();
+  base_ground_truth.pose.pose.orientation.y = world.Rot().Y();
+  base_ground_truth.pose.pose.orientation.z = world.Rot().Z();
+  base_ground_truth.pose.pose.orientation.w = world.Rot().W();
   ground_truth_pub_.publish(base_ground_truth);
 
 }
@@ -180,24 +195,45 @@ void GazeboRosKobuki::updateOdometry(common::Time &step_time) {
  */
 void GazeboRosKobuki::updateIMU() {
   imu_msg_.header = joint_state_.header;
-  math::Quaternion quat = imu_->Orientation();
-  imu_msg_.orientation.x = quat.x;
-  imu_msg_.orientation.y = quat.y;
-  imu_msg_.orientation.z = quat.z;
-  imu_msg_.orientation.w = quat.w;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    ignition::math::Quaterniond quat = imu_->Orientation();
+    imu_msg_.orientation.x = quat.X();
+    imu_msg_.orientation.y = quat.Y();
+    imu_msg_.orientation.z = quat.Z();
+    imu_msg_.orientation.w = quat.W();
+  #else
+    math::Quaternion quat = imu_->Orientation();
+    imu_msg_.orientation.x = quat.x;
+    imu_msg_.orientation.y = quat.y;
+    imu_msg_.orientation.z = quat.z;
+    imu_msg_.orientation.w = quat.w;
+  #endif
   imu_msg_.orientation_covariance[0] = 1e6;
   imu_msg_.orientation_covariance[4] = 1e6;
   imu_msg_.orientation_covariance[8] = 0.05;
-  imu_msg_.angular_velocity.x = vel_angular_.x;
-  imu_msg_.angular_velocity.y = vel_angular_.y;
-  imu_msg_.angular_velocity.z = vel_angular_.z;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    imu_msg_.angular_velocity.x = vel_angular_.X();
+    imu_msg_.angular_velocity.y = vel_angular_.Y();
+    imu_msg_.angular_velocity.z = vel_angular_.Z();
+  #else
+    imu_msg_.angular_velocity.x = vel_angular_.x;
+    imu_msg_.angular_velocity.y = vel_angular_.y;
+    imu_msg_.angular_velocity.z = vel_angular_.z;
+  #endif
   imu_msg_.angular_velocity_covariance[0] = 1e6;
   imu_msg_.angular_velocity_covariance[4] = 1e6;
   imu_msg_.angular_velocity_covariance[8] = 0.05;
-  math::Vector3 lin_acc = imu_->LinearAcceleration();
-  imu_msg_.linear_acceleration.x = lin_acc.x;
-  imu_msg_.linear_acceleration.y = lin_acc.y;
-  imu_msg_.linear_acceleration.z = lin_acc.z;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    ignition::math::Vector3d lin_acc = imu_->LinearAcceleration();
+    imu_msg_.linear_acceleration.x = lin_acc.X();
+    imu_msg_.linear_acceleration.y = lin_acc.Y();
+    imu_msg_.linear_acceleration.z = lin_acc.Z();
+  #else
+    math::Vector3 lin_acc = imu_->LinearAcceleration();
+    imu_msg_.linear_acceleration.x = lin_acc.x;
+    imu_msg_.linear_acceleration.y = lin_acc.y;
+    imu_msg_.linear_acceleration.z = lin_acc.z;
+  #endif
   imu_pub_.publish(imu_msg_); // publish odom message
 }
 
@@ -315,13 +351,23 @@ void GazeboRosKobuki::updateBumper() {
   // parse contacts
   msgs::Contacts contacts;
   contacts = bumper_->Contacts();
-  math::Pose current_pose = model_->GetWorldPose();
-  double robot_heading = current_pose.rot.GetYaw();
+  double robot_heading;
+  #if GAZEBO_MAJOR_VERSION >= 9
+    ignition::math::Pose3d current_pose = model_->WorldPose();
+    robot_heading = current_pose.Rot().Yaw();
+  #else
+    math::Pose current_pose = model_->GetWorldPose();
+    robot_heading = current_pose.Rot().GetYaw();
+  #endif
   ros::Time current_time = ros::Time::now();
 
   for (int i = 0; i < contacts.contact_size(); ++i) {
-    double rel_contact_pos =
-        contacts.contact(i).position(0).z() - current_pose.pos.z;
+    double rel_contact_pos;
+    #if GAZEBO_MAJOR_VERSION >= 9
+      rel_contact_pos =  contacts.contact(i).position(0).z() - current_pose.Pos().Z();
+    #else
+      rel_contact_pos =  contacts.contact(i).position(0).z() - current_pose.Pos().Z();
+    #endif
     // Actually, only contacts at the height of the bumper should be considered,
     // but since we use a simplified collision model
     // contacts further below and above need to be consider as well to identify

@@ -1,6 +1,6 @@
 <package>
   <name>chris_ros_turtlebot</name>
-  <version>0.0.1</version>
+  <version>0.2.0</version>
   <description>
     Meta-package for CNU Robotics Turtlebot Setup
   </description>

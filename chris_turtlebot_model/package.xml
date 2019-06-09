@@ -1,6 +1,6 @@
 <package format="2">
   <name>chris_turtlebot_model</name>
-  <version>0.0.1</version>
+  <version>0.2.0</version>
   <description>URDF and ROS plugins for Gazebo for the CNU Robotics CHRISLab Turtlebot configuration</description>
   <maintainer email="david.conner@cnu.edu">David Conner</maintainer>
   <license>BSD</license>

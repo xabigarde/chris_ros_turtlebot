@@ -3,8 +3,8 @@
   <arg name="base_prefix"                      default="mobile_base" />
   <arg name="include_fake_localization_robot0" default="false"/> <!-- Most of our navigation demos need map server, so use version from chris_turtlebot_navigation -->
   <arg name="include_fake_localization_robot1" default="false"/>
-  <arg name="initial_pose_robot0"              default="-x -0.75 -y  0.5 - z 0.0 -Y -1.5708"/>
-  <arg name="initial_pose_robot1"              default="-x  0.75 -y -0.5 - z 0.0 -Y  1.5708"/>
+  <arg name="initial_pose_robot0"              default="-x -0.75 -y  0.5 -z 0.0 -Y -1.5708"/>
+  <arg name="initial_pose_robot1"              default="-x  0.75 -y -0.5 -z 0.0 -Y  1.5708"/>
 
   <arg name="robot0" default="$(arg robot_base_name)0"/>
   <arg name="robot1" default="$(arg robot_base_name)1"/>
