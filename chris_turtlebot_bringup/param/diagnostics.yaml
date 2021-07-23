@@ -23,7 +23,7 @@ analyzers:
     path: 'Sensors'
     timeout: 5.0
     contains: ['Cliff Sensor', 'Wall Sensor', 'Wheel Drop', 'Motor Current', 'Gyro Sensor','Hardware Status','Laser Scan']
-    remove_prefix: ['turtlebot','nodelet_manager','hokuyo_node']
+    remove_prefix: ['turtlebot','nodelet_manager','ydlidar_node']
   input_ports:
     type: diagnostic_aggregator/GenericAnalyzer
     path: 'Input Ports'

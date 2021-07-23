@@ -120,12 +120,12 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        hokuyo_base_link:
+        ydlidar_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        hokuyo_laser:
+        ydlidar_laser:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -273,7 +273,7 @@ Visualization Manager:
       Size (Pixels): 2
       Size (m): 0.00999999978
       Style: Points
-      Topic: /tbot1/hokuyo_node/scan
+      Topic: /tbot1/ydlidar_node/scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: false
@@ -340,9 +340,9 @@ Visualization Manager:
           Value: false
         tbot0_tf/gyro_link:
           Value: false
-        tbot0_tf/hokuyo_base_link:
+        tbot0_tf/ydlidar_base_link:
           Value: false
-        tbot0_tf/hokuyo_laser:
+        tbot0_tf/ydlidar_laser:
           Value: false
         tbot0_tf/map:
           Value: false
@@ -416,9 +416,9 @@ Visualization Manager:
           Value: false
         tbot1_tf/gyro_link:
           Value: false
-        tbot1_tf/hokuyo_base_link:
+        tbot1_tf/ydlidar_base_link:
           Value: false
-        tbot1_tf/hokuyo_laser:
+        tbot1_tf/ydlidar_laser:
           Value: false
         tbot1_tf/map:
           Value: false
@@ -503,8 +503,8 @@ Visualization Manager:
                     {}
                   tbot0_tf/camera_rgb_optical_frame:
                     {}
-                tbot0_tf/hokuyo_base_link:
-                  tbot0_tf/hokuyo_laser:
+                tbot0_tf/ydlidar_base_link:
+                  tbot0_tf/ydlidar_laser:
                     {}
                 tbot0_tf/plate_bottom_link:
                   {}
@@ -572,8 +572,8 @@ Visualization Manager:
                     {}
                   tbot1_tf/camera_rgb_optical_frame:
                     {}
-                tbot1_tf/hokuyo_base_link:
-                  tbot1_tf/hokuyo_laser:
+                tbot1_tf/ydlidar_base_link:
+                  tbot1_tf/ydlidar_laser:
                     {}
                 tbot1_tf/plate_bottom_link:
                   {}

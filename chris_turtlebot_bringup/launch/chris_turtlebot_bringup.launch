@@ -8,18 +8,18 @@
   </include>
 
   <!-- LIDAR interface -->
-  <include file="$(find chris_turtlebot_bringup)/launch/chris_hokuyo_bringup.launch" >
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_ydlidar_bringup.launch" >
     <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
   </include>
 
   <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter" ns="$(arg robot_namespace)">
-        <remap from="scan"          to="hokuyo_node/scan_raw" />
-        <remap from="scan_filtered" to="hokuyo_node/scan" />
+        <remap from="scan"          to="ydlidar_node/scan_raw" />
+        <remap from="scan_filtered" to="ydlidar_node/scan" />
         <rosparam command="load" file="$(find chris_turtlebot_bringup)/param/laser_filters.yaml" />
   </node>
 
   <!-- Kinect interface -->
-  <include file="$(find chris_turtlebot_bringup)/launch/chris_kinect_bringup.launch" >
+  <include file="$(find chris_turtlebot_bringup)/launch/chris_realsense_bringup.launch" >
     <arg name="robot_namespace"       value="$(arg robot_namespace)"/>
   </include>
 

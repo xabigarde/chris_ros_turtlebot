@@ -4,7 +4,7 @@
   <arg name="serialport"        default="/dev/kobuki"         doc="used by Turtlebot to configure the port it is connected on [/dev/kobuki]"/>
   <arg name="battery"           default="None"                doc="kernel provided location for battery info, e.g. /sys/class/power_supply/BAT0 for laptops.  Our turtlebots use Nuc computers without battery info." />
 
-  <!-- Load the CNU Turtlebot model with Kinect and Hokuyo URG-04LX lidar sensors -->
+  <!-- Load the CNU Turtlebot model with Kinect and YDLIDAR X4 lidar sensors -->
   <group ns="$(arg robot_namespace)">
     <param name="tf_prefix"       value="$(arg robot_namespace)_tf"/>
     <arg  name="urdf_cmd" value= "$(find xacro)/xacro -v '$(find chris_turtlebot_model)/robots/chris_turtlebot.urdf.xacro'  nsp:=$(arg robot_namespace)"/>

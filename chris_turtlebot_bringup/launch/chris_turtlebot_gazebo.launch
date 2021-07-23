@@ -5,7 +5,7 @@
   <arg name="include_fake_localization" default="false"/>
 
 
-  <!-- Load the CNU Turtlebot model with Kinect and Hokuyo sensors -->
+  <!-- Load the CNU Turtlebot model with Kinect and ydlidar sensors -->
   <!-- We expect to call this launch file within a particular namespace for multiple robots -->
   <group ns="$(arg robot_namespace)">
     <!-- Define a tf_prefix to set the tf frames in this robot description.  Yes it is deprecated, but the best we can do for now -->
@@ -48,8 +48,8 @@
   </group>
 
   <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter" ns="$(arg robot_namespace)">
-        <remap from="scan"          to="hokuyo_node/scan_raw" />
-        <remap from="scan_filtered" to="hokuyo_node/scan" />
+        <remap from="scan"          to="ydlidar_node/scan_raw" />
+        <remap from="scan_filtered" to="ydlidar_node/scan" />
         <rosparam command="load" file="$(find chris_turtlebot_bringup)/param/laser_filters.yaml" />
   </node>
 

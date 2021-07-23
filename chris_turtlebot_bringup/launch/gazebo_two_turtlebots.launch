@@ -9,7 +9,7 @@
   <arg name="robot0" default="$(arg robot_base_name)0"/>
   <arg name="robot1" default="$(arg robot_base_name)1"/>
 
-  <!-- Load the CNU Turtlebot models with Kinect and Hokuyo sensors -->
+  <!-- Load the CNU Turtlebot models with Kinect and ydlidar sensors -->
   <include file="$(find chris_turtlebot_bringup)/launch/chris_turtlebot_gazebo.launch">
       <arg name="robot_namespace"           value="$(arg robot0)" />
       <arg name="base_prefix"               value="$(arg base_prefix)" />

@@ -112,12 +112,12 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        hokuyo_base_link:
+        ydlidar_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        hokuyo_laser:
+        ydlidar_laser:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -265,7 +265,7 @@ Visualization Manager:
       Size (Pixels): 2
       Size (m): 0.00999999978
       Style: Points
-      Topic: /turtlebot/hokuyo_node/scan
+      Topic: /turtlebot/ydlidar_node/scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: false
@@ -319,9 +319,9 @@ Visualization Manager:
           Value: true
         turtlebot_tf/gyro_link:
           Value: true
-        turtlebot_tf/hokuyo_base_link:
+        turtlebot_tf/ydlidar_base_link:
           Value: true
-        turtlebot_tf/hokuyo_laser:
+        turtlebot_tf/ydlidar_laser:
           Value: true
         turtlebot_tf/map:
           Value: true
@@ -403,8 +403,8 @@ Visualization Manager:
                   {}
                 turtlebot_tf/camera_rgb_optical_frame:
                   {}
-              turtlebot_tf/hokuyo_base_link:
-                turtlebot_tf/hokuyo_laser:
+              turtlebot_tf/ydlidar_base_link:
+                turtlebot_tf/ydlidar_laser:
                   {}
               turtlebot_tf/plate_bottom_link:
                 {}

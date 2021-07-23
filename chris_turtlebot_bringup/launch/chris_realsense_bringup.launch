@@ -46,7 +46,7 @@
     <!-- Laserscan topic -->
     <arg name="scan_topic" default="$(arg base_prefix)/scan"/>
 
-    <include file="$(find freenect_launch)/launch/freenect.launch">
+    <include file="$(find realsense2_camera)/launch/d435.launch">
        <arg name="camera"                          value="$(arg camera)"/>
        <arg name="rgb_frame_id"                    value="$(arg robot_namespace)_tf/$(arg camera)_rgb_optical_frame" />
        <arg name="depth_frame_id"                  value="$(arg robot_namespace)_tf/$(arg camera)_depth_optical_frame" />

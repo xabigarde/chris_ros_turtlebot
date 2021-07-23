@@ -1,7 +1,7 @@
 chris_ros_turtlebot
 ===================
 
-This meta-package handles the bring up of hardware and Gazebo-based simulation of the CNU specific configuration of Kobuki-based Turtlebot, with a Kinect sensor and Hokuyo URG-04LX lidar.
+This meta-package handles the bring up of hardware and Gazebo-based simulation of the CNU specific configuration of Kobuki-based Turtlebot, with a Kinect sensor and YDLIDAR X4 lidar.
 
 The repository includes three packages:  `chris_turtlebot_model`,  `chris_turtlebot_dashboard`, and `chris_turtlebot_bringup`.
 
@@ -41,7 +41,7 @@ The package includes launch files that are compatible with the CNU Robotics [Fle
 |-------------|-------------|
 |chris_turtlebot_bringup.launch | This launches the robot base system on the turtlebot hardware within a given namespace (default: `turtlebot`).  |
 |chris_turtlebot_node.launch| This launches the base platform hardware drivers and associated nodes within a given namespace (default: `turtlebot`).  |
-|chris_hokuyo_node.launch | Launches hokuyo driver and associated hardware within robot namespace (called by `chris_turtlebot_bringup`) |
+|chris_ydlidar_bringup.launch | Launches YDLIDAR driver and associated hardware within robot namespace (called by `chris_turtlebot_bringup`) |
 |chris_kinect_node.launch | Launches kinect sensor processing within robot namespace  (called by `chris_turtlebot_bringup`)|
 
 | HW or Gazebo Launch Files | Description |

@@ -2,7 +2,7 @@
   <arg name="robot_namespace"   default="turtlebot"/> <!-- robot's name used by plugin to publish topics -->
   <arg name="base_prefix"       default="mobile_base" />
 
-  <!-- Load the CNU Turtlebot model with Kinect and Hokuyo URG-04LX lidar sensors -->
+  <!-- Load the CNU Turtlebot model with Kinect and YDLIDAR X4 lidar sensors -->
   <group ns="$(arg robot_namespace)">
     <node name="kobuki_dashboard" pkg="rqt_gui" type="rqt_gui" args="-s chris_turtlebot_dashboard"/>
   </group>
